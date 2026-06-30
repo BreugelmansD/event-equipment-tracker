@@ -17,7 +17,7 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     const THEMES = {
       light: {
@@ -41,114 +41,395 @@
         id: "req_regie",
         name: "Set: 9m regie desk P&D - black - H=1m20",
         description: "Regie desk / mengpaneel opstelling",
-        matches: ["regie desk", "9m regie", "regie desk p&d", "regie"],
-        checklist_items: ["Regie desk"],
+        matches: ["regie desk", "9m regie", "regie desk p&d", "regiedesk"],
+        checklist_items: ["Regiedesk set 9 m"],
       },
       {
         id: "req_schuko",
         name: "Schuko kit",
-        description: "Schuko / domino's + stekkerdozen",
-        matches: ["schuko", "cakit schuko", "cakit-schuko", "domino", "stekkerdoos", "schucko", "shucko", "cakit"],
-        checklist_items: ["Schuko / domino's", "Stekkerdozen"],
+        description: "Schuko cablekit + verlengkabels",
+        matches: ["schuko", "cakit schuko", "cakit-schuko", "domino", "schucko", "shucko", "cakit"],
+        checklist_items: ["Schuko cablekit", "Schuko verlengkabel 25 m"],
       },
       {
         id: "req_xlr3",
         name: "XLR 3-pin kabels",
         description: "XLR 3-pin audiokabels",
         matches: ["xlr 3", "xlr3", "xlr 3pin", "xlr 3-pin", "xlr drie", "cablekit xlr", "cablekit aes 3p"],
-        checklist_items: ["XLR 3-pin kabels"],
+        checklist_items: ["XLR/DMX/AES multicable 5 m", "XLR/DMX/AES multicable 10 m"],
       },
       {
         id: "req_xlr5",
-        name: "XLR 5-pin kabels",
-        description: "XLR 5-pin DMX kabels",
-        matches: ["xlr 5", "xlr5", "xlr 5pin", "xlr 5-pin", "xlr vijf", "dmx"],
-        checklist_items: ["XLR 5-pin kabels"],
+        name: "XLR 5-pin / DMX kabels",
+        description: "DMX 5p cablekits of combikabels",
+        matches: ["xlr 5", "xlr5", "xlr 5pin", "xlr 5-pin", "dmx 5p", "dmx5p", "combikabel"],
+        checklist_items: ["DMX 5p cablekit", "PowerCON + DMX 5p combikabel 10 m"],
       },
       {
         id: "req_utp",
         name: "UTP / ethercon kabels",
         description: "Netwerkkabels / ethercon",
-        matches: ["utp", "ethercon", "ethernet", "cat5", "cat6", "network"],
-        checklist_items: ["UTP / ethercon kabels"],
+        matches: ["utp", "ethercon", "ethernet", "cat5", "cat6", "network", "dante"],
+        checklist_items: ["UTP cablekit", "ETHERCON cablekit"],
       },
       {
         id: "req_consumable",
         name: "Consumablekit OF Production toolcase",
-        description: "Consumablekit (gaffa, tape, kabelbinders) of production toolcase",
+        description: "Productietoolcase of consumables",
         matches: ["consumablekit", "consumable kit", "consumable", "toolcase", "tool case", "production toolcase", "gaffa", "gaffer", "kabelbinders"],
-        checklist_items: ["Consumablekit", "Production toolcase"],
+        checklist_items: ["Productietoolcase Medium"],
       },
       {
-        id: "req_video",
-        name: "Videokit",
-        description: "HDMI's, SDI's en USB-C naar HDMI kabels",
-        matches: ["videokit", "video kit", "hdmi", "sdi", "usb-c hdmi", "usb c hdmi", "displayport", "video"],
-        checklist_items: ["HDMI kabels", "SDI kabels", "USB-C HDMI adapters"],
+        id: "req_speakon",
+        name: "Speakon / COMBI cablekit",
+        description: "Speakon SP4 of COMBI cablekit (Speakon + XLR)",
+        matches: ["speakon", "combi cablekit"],
+        checklist_items: ["Speakon SP4 cablekit", "COMBI cablekit (Speakon + XLR)"],
       },
     ];
 
     const DEFAULT_CATEGORIES = [
-      { id: "studio", label: "Studio Equipment", icon: "🎛️", items: [
-        { id: "regie", name: "Regie desk" },
-      ]},
-      { id: "kabels", label: "Kabels", icon: "🔌", items: [
-        { id: "xlr3", name: "XLR 3-pin kabels" }, { id: "xlr5", name: "XLR 5-pin kabels" },
-        { id: "speakon", name: "Speakon kabels" }, { id: "utp", name: "UTP / ethercon kabels" },
-        { id: "powercon", name: "Powercon kabels" }, { id: "hdmi", name: "HDMI kabels" },
-        { id: "sdi", name: "SDI kabels" }, { id: "usb_c_hdmi", name: "USB-C HDMI adapters" },
-        { id: "jack", name: "Jack kabels (6.35mm)" },
-      ]},
-      { id: "stroom", label: "Stroom & Distributie", icon: "⚡", items: [
-        { id: "schuko", name: "Schuko / domino's" }, { id: "stekkerdoos", name: "Stekkerdozen" },
-        { id: "verlengsnoer", name: "Verlengsnoeren" },
-        { id: "distro", name: "Stroom distro" },
-      ]},
-      { id: "kits", label: "Kits & Cases", icon: "🧰", items: [
-        { id: "consumable", name: "Consumablekit" }, { id: "toolcase", name: "Production toolcase" },
-        { id: "videokit", name: "Videokit" }, { id: "cakit", name: "CAKIT Schuko" },
-      ]},
-      { id: "extras", label: "⭐ Extras (niet vergeten!)", icon: "⭐", items: [
-        { id: "event_fabric", name: "Event Fabric" }, { id: "cable_crossover", name: "Cable crossover" },
-        { id: "spanriemen", name: "Spanriemen" },
-      ]},
-      { id: "veiligheid", label: "Veiligheid & Toegang", icon: "🪜", items: [
-        { id: "ladder", name: "Ladder" }, { id: "stelling", name: "Stelling / rolsteiger" },
-        { id: "klimpak", name: "Klimpak / harnas" }, { id: "lifeline", name: "Lifeline / veiligheidslijn" },
-        { id: "helm", name: "Veiligheidshelm" },
-      ]},
-      { id: "audio", label: "Audio", icon: "🔊", items: [
-        { id: "micros", name: "Microfoons" }, { id: "microstands", name: "Microfoonstandaards" },
-        { id: "iem", name: "IEM systeem" }, { id: "mixer", name: "Mengpaneel" },
-        { id: "ampli", name: "Versterkers" }, { id: "speakers", name: "Luidsprekers" },
-        { id: "subwoofers", name: "Subwoofers" }, { id: "di_box", name: "DI boxes" },
-      ]},
       { id: "licht", label: "Licht", icon: "💡", items: [
-        { id: "moving_head", name: "Moving heads" }, { id: "par_cans", name: "PAR cans" },
-        { id: "dmx_controller", name: "DMX controller" }, { id: "followspot", name: "Followspot" },
-        { id: "hazer", name: "Hazer / rookmachine" },
+        { id: "uplighters", name: "Chauvet Well POD uplighters" },
+        { id: "lichttafel", name: "ChamSys MQ70 lichttafel" },
+        { id: "dmx_wireless", name: "Wireless DMX transceiver (Briteq WTR-DMX)" },
+        { id: "dmx_node", name: "ELC DMX Node 8 + splitter" },
+        { id: "dmx_splitter", name: "Showtec RDM DMX splitter/booster" },
+        { id: "maverick", name: "Chauvet Maverick Profile (moving head spot)" },
+        { id: "ledrobe", name: "Robe LEDBeam 350 (moving head wash)" },
+        { id: "truss_sleeve", name: "Truss sleeve wit" },
+        { id: "lichtpaal", name: "HEBA Light Pole K&M" },
+        { id: "heavy_base", name: "Heavy base voor K&M lichtpaal" },
+      ]},
+      { id: "lichtbekabeling", label: "Lichtbekabeling", icon: "🔦", items: [
+        { id: "dmx3_cablekit", name: "DMX 3p cablekit" },
+        { id: "dmx5_cablekit", name: "DMX 5p cablekit" },
+        { id: "powercon_dmx_5m", name: "PowerCON + DMX 5p combikabel 5 m" },
+        { id: "powercon_dmx_3m", name: "PowerCON + DMX 5p combikabel 3 m" },
+        { id: "powercon_dmx_10m", name: "PowerCON + DMX 5p combikabel 10 m" },
+        { id: "powercon_dmx_25m", name: "PowerCON + DMX 5p combikabel 25 m" },
+      ]},
+      { id: "geluid_tafel", label: "Geluid — Mengtafels & Stagebox", icon: "🎛️", items: [
+        { id: "dm7", name: "Yamaha DM7 Compact" },
+        { id: "dm3", name: "Yamaha DM3" },
+        { id: "rio", name: "Yamaha Rio1608-D2 stagebox" },
+      ]},
+      { id: "geluid_netwerk", label: "Geluid — Netwerk", icon: "🌐", items: [
+        { id: "netgear", name: "Netgear M4300 switch" },
+        { id: "unifi", name: "UniFi AC Mesh access point" },
+        { id: "ipad_kit", name: "iPad remote kit" },
+      ]},
+      { id: "geluid_pa", label: "Geluid — PA", icon: "🔊", items: [
+        { id: "lacoustics_x8", name: "L-Acoustics X8" },
+        { id: "lacoustics_a10", name: "L-Acoustics A10 Focus" },
+        { id: "lacoustics_ks21", name: "L-Acoustics KS21 subwoofer" },
+        { id: "lacoustics_la4x", name: "L-Acoustics LA4X versterker" },
+        { id: "a10_brackets", name: "A10 brackets" },
+      ]},
+      { id: "geluid_micro", label: "Geluid — Microfoons & Draadloos", icon: "🎤", items: [
+        { id: "ulxd2", name: "Shure ULXD2 handheld" },
+        { id: "ulxd1", name: "Shure ULXD1 beltpack" },
+        { id: "ulxd4d", name: "Shure ULXD4D dubbele ontvanger" },
+        { id: "microstands", name: "Microfoonstatief" },
+        { id: "sm58", name: "Shure SM58" },
+        { id: "beta58", name: "Shure Beta58" },
+        { id: "dpa4099", name: "DPA 4099 instrumentmicrofoons" },
+        { id: "dpa_clamps", name: "DPA clamps" },
+        { id: "freq_licentie", name: "Frequentielicentie-set" },
+      ]},
+      { id: "audiobekabeling", label: "Audiobekabeling", icon: "🔌", items: [
+        { id: "dante_25m", name: "Dante combikabel 25 m" },
+        { id: "dante_50m", name: "Dante combikabel 50 m" },
+        { id: "xlr_multi_5m", name: "XLR/DMX/AES multicable 5 m" },
+        { id: "xlr_multi_10m", name: "XLR/DMX/AES multicable 10 m" },
+        { id: "socapex_breakin", name: "SOCAPEX break-in" },
+        { id: "socapex_box", name: "SOCAPEX break-in/out box" },
+        { id: "socapex_25m", name: "SOCAPEX multicable 25 m" },
+        { id: "combi_cablekit", name: "COMBI cablekit (Speakon + XLR)" },
+        { id: "speakon_sp4", name: "Speakon SP4 cablekit" },
+        { id: "jack_mono", name: "Jackkabel mono 3 m" },
+      ]},
+      { id: "inhuur", label: "Inhuur", icon: "📦", items: [
+        { id: "lacoustics_x12", name: "L-Acoustics X12" },
+        { id: "psm1000", name: "Shure PSM1000 In-ear systeem" },
+        { id: "lacoustics_a15", name: "L-Acoustics A15 Wide" },
+        { id: "djm_a9", name: "Pioneer DJM-A9" },
+        { id: "cdj3000", name: "Pioneer CDJ-3000" },
+      ]},
+      { id: "rigging", label: "Rigging", icon: "🏗️", items: [
+        { id: "truss_1m", name: "Prolyte H30V truss 1 m" },
+        { id: "truss_3m", name: "Prolyte H30V truss 3 m" },
+        { id: "baseplate_klein", name: "Kleine Prolyte baseplate" },
+        { id: "tree_bracket", name: "Tree/Pole brackets" },
+        { id: "spanband_6m", name: "Spanband 6 m" },
+        { id: "spanband_2m", name: "Spanband 2 m" },
+        { id: "truss_clamps", name: "Fixed angle truss clamps" },
+        { id: "pinnen", name: "Kist met pinnen/clips" },
+        { id: "creative_piping", name: "Prolyte Creative Piping set" },
+        { id: "baseplate_round", name: "Heavy round baseplate Prolyte" },
+      ]},
+      { id: "staging", label: "Staging", icon: "🎪", items: [
+        { id: "stagedex_2x1", name: "Prolyte Stagedex 2×1 m" },
+        { id: "stagedex_2x05", name: "Prolyte Stagedex 2×0,5 m" },
+        { id: "stagedex_1x1", name: "Prolyte Stagedex 1×1 m" },
+        { id: "stagedex_1x05", name: "Prolyte Stagedex 1×0,5 m" },
+        { id: "pootset_40", name: "Pootset 40 cm" },
+        { id: "pootset_20", name: "Pootset 20 cm" },
+        { id: "pootset_60", name: "Pootset 60 cm" },
+        { id: "verstelbare_poten", name: "Verstelbare poten 40–60 cm" },
+        { id: "trap_h40", name: "Trap H40" },
+        { id: "stage_skirt_40", name: "Stage skirt 40 cm" },
+        { id: "stage_skirt_20", name: "Stage skirt 20 cm" },
+        { id: "tapijt", name: "Antraciet podiumtapijt" },
+        { id: "deck_clamps", name: "Deck-to-deck clamps" },
+        { id: "rolling_riser", name: "Rolling riser adapters" },
+        { id: "regiedesk", name: "Regiedesk set 9 m" },
+        { id: "vloerbescherming", name: "Vloerbeschermingsset" },
+        { id: "zwarte_flanel", name: "Zwarte flanel" },
+      ]},
+      { id: "stroom", label: "Stroom", icon: "⚡", items: [
+        { id: "cee32_10m", name: "CEE 32A 10 m" },
+        { id: "cee32_25m", name: "CEE 32A 25 m" },
+        { id: "cee32_5m", name: "CEE 32A 5 m" },
+        { id: "cee32_2m", name: "CEE 32A 2 m" },
+        { id: "schuko_kit", name: "Schuko cablekit" },
+        { id: "schuko_verleng", name: "Schuko verlengkabel 25 m" },
+      ]},
+      { id: "varia", label: "Varia", icon: "🧰", items: [
+        { id: "loading_ramp", name: "Loading ramp" },
+        { id: "kabelgoten", name: "Defender Nano kabelgoten" },
+        { id: "utp_kit", name: "UTP cablekit" },
+        { id: "cat6a_haspel", name: "CAT6A haspel 90 m" },
+        { id: "ethercon_kit", name: "ETHERCON cablekit" },
+        { id: "toolcase", name: "Productietoolcase Medium" },
+        { id: "ladder_xl", name: "Ladder XL" },
+        { id: "ladder_m", name: "Ladder Medium" },
+        { id: "ballast", name: "Ballastset (zandzakken)" },
+        { id: "zwanenhals", name: "MP zwanenhals statief" },
+        { id: "wielplaat", name: "MP wielplaat" },
       ]},
     ];
 
     const FOUND_TO_CHECKLIST = {
-      "Regie desk": "regie", "XLR 3-pin kabels": "xlr3", "XLR 5-pin kabels": "xlr5",
-      "HDMI kabels": "hdmi", "SDI kabels": "sdi", "USB-C HDMI adapters": "usb_c_hdmi",
-      "UTP / ethercon kabels": "utp", "Speakon kabels": "speakon", "Powercon kabels": "powercon",
-      "Jack kabels (6.35mm)": "jack", "Schuko / domino's": "schuko", "Stekkerdozen": "stekkerdoos",
-      "Consumablekit": "consumable", "Production toolcase": "toolcase", "Videokit": "videokit",
-      "CAKIT Schuko": "cakit", "Event Fabric": "event_fabric", "Cable crossover": "cable_crossover",
-      "Spanriemen": "spanriemen", "Ladder": "ladder", "Stelling / rolsteiger": "stelling",
-      "Klimpak / harnas": "klimpak", "Lifeline / veiligheidslijn": "lifeline", "Veiligheidshelm": "helm",
-      "Microfoons": "micros", "Microfoonstandaards": "microstands", "IEM systeem": "iem",
-      "Mengpaneel": "mixer", "Versterkers": "ampli", "Luidsprekers": "speakers", "Subwoofers": "subwoofers",
-      "DI boxes": "di_box", "Moving heads": "moving_head", "PAR cans": "par_cans",
-      "DMX controller": "dmx_controller", "Followspot": "followspot", "Hazer / rookmachine": "hazer",
-      "Verlengsnoeren": "verlengsnoer", "Stroom distro": "distro",
+      "Chauvet Well POD uplighters": "uplighters",
+      "ChamSys MQ70 lichttafel": "lichttafel",
+      "Wireless DMX transceiver (Briteq WTR-DMX)": "dmx_wireless",
+      "ELC DMX Node 8 + splitter": "dmx_node",
+      "Showtec RDM DMX splitter/booster": "dmx_splitter",
+      "Chauvet Maverick Profile (moving head spot)": "maverick",
+      "Robe LEDBeam 350 (moving head wash)": "ledrobe",
+      "Truss sleeve wit": "truss_sleeve",
+      "HEBA Light Pole K&M": "lichtpaal",
+      "Heavy base voor K&M lichtpaal": "heavy_base",
+      "DMX 3p cablekit": "dmx3_cablekit",
+      "DMX 5p cablekit": "dmx5_cablekit",
+      "PowerCON + DMX 5p combikabel 5 m": "powercon_dmx_5m",
+      "PowerCON + DMX 5p combikabel 3 m": "powercon_dmx_3m",
+      "PowerCON + DMX 5p combikabel 10 m": "powercon_dmx_10m",
+      "PowerCON + DMX 5p combikabel 25 m": "powercon_dmx_25m",
+      "Yamaha DM7 Compact": "dm7",
+      "Yamaha DM3": "dm3",
+      "Yamaha Rio1608-D2 stagebox": "rio",
+      "Netgear M4300 switch": "netgear",
+      "UniFi AC Mesh access point": "unifi",
+      "iPad remote kit": "ipad_kit",
+      "L-Acoustics X8": "lacoustics_x8",
+      "L-Acoustics A10 Focus": "lacoustics_a10",
+      "L-Acoustics KS21 subwoofer": "lacoustics_ks21",
+      "L-Acoustics LA4X versterker": "lacoustics_la4x",
+      "A10 brackets": "a10_brackets",
+      "Shure ULXD2 handheld": "ulxd2",
+      "Shure ULXD1 beltpack": "ulxd1",
+      "Shure ULXD4D dubbele ontvanger": "ulxd4d",
+      "Microfoonstatief": "microstands",
+      "Shure SM58": "sm58",
+      "Shure Beta58": "beta58",
+      "DPA 4099 instrumentmicrofoons": "dpa4099",
+      "DPA clamps": "dpa_clamps",
+      "Frequentielicentie-set": "freq_licentie",
+      "Dante combikabel 25 m": "dante_25m",
+      "Dante combikabel 50 m": "dante_50m",
+      "XLR/DMX/AES multicable 5 m": "xlr_multi_5m",
+      "XLR/DMX/AES multicable 10 m": "xlr_multi_10m",
+      "SOCAPEX break-in": "socapex_breakin",
+      "SOCAPEX break-in/out box": "socapex_box",
+      "SOCAPEX multicable 25 m": "socapex_25m",
+      "COMBI cablekit (Speakon + XLR)": "combi_cablekit",
+      "Speakon SP4 cablekit": "speakon_sp4",
+      "Jackkabel mono 3 m": "jack_mono",
+      "L-Acoustics X12": "lacoustics_x12",
+      "Shure PSM1000 In-ear systeem": "psm1000",
+      "L-Acoustics A15 Wide": "lacoustics_a15",
+      "Pioneer DJM-A9": "djm_a9",
+      "Pioneer CDJ-3000": "cdj3000",
+      "Prolyte H30V truss 1 m": "truss_1m",
+      "Prolyte H30V truss 3 m": "truss_3m",
+      "Kleine Prolyte baseplate": "baseplate_klein",
+      "Tree/Pole brackets": "tree_bracket",
+      "Spanband 6 m": "spanband_6m",
+      "Spanband 2 m": "spanband_2m",
+      "Fixed angle truss clamps": "truss_clamps",
+      "Kist met pinnen/clips": "pinnen",
+      "Prolyte Creative Piping set": "creative_piping",
+      "Heavy round baseplate Prolyte": "baseplate_round",
+      "Prolyte Stagedex 2×1 m": "stagedex_2x1",
+      "Prolyte Stagedex 2×0,5 m": "stagedex_2x05",
+      "Prolyte Stagedex 1×1 m": "stagedex_1x1",
+      "Prolyte Stagedex 1×0,5 m": "stagedex_1x05",
+      "Pootset 40 cm": "pootset_40",
+      "Pootset 20 cm": "pootset_20",
+      "Pootset 60 cm": "pootset_60",
+      "Verstelbare poten 40–60 cm": "verstelbare_poten",
+      "Trap H40": "trap_h40",
+      "Stage skirt 40 cm": "stage_skirt_40",
+      "Stage skirt 20 cm": "stage_skirt_20",
+      "Antraciet podiumtapijt": "tapijt",
+      "Deck-to-deck clamps": "deck_clamps",
+      "Rolling riser adapters": "rolling_riser",
+      "Regiedesk set 9 m": "regiedesk",
+      "Vloerbeschermingsset": "vloerbescherming",
+      "Zwarte flanel": "zwarte_flanel",
+      "Loading ramp": "loading_ramp",
+      "Defender Nano kabelgoten": "kabelgoten",
+      "UTP cablekit": "utp_kit",
+      "CAT6A haspel 90 m": "cat6a_haspel",
+      "ETHERCON cablekit": "ethercon_kit",
+      "Schuko cablekit": "schuko_kit",
+      "CEE 32A 10 m": "cee32_10m",
+      "CEE 32A 25 m": "cee32_25m",
+      "CEE 32A 5 m": "cee32_5m",
+      "CEE 32A 2 m": "cee32_2m",
+      "Schuko verlengkabel 25 m": "schuko_verleng",
+      "Productietoolcase Medium": "toolcase",
+      "Ladder XL": "ladder_xl",
+      "Ladder Medium": "ladder_m",
+      "Ballastset (zandzakken)": "ballast",
+      "MP zwanenhals statief": "zwanenhals",
+      "MP wielplaat": "wielplaat",
     };
 
-    function checkRequiredInText(docText) {
+    const ITEM_KEYWORDS = {
+      // Licht
+      "uplighters":       ["well pod", "uplighter", "chauvet well"],
+      "lichttafel":       ["chamsys", "mq70", "lichttafel", "lichtconsole"],
+      "dmx_wireless":     ["wireless dmx", "wtr-dmx", "briteq"],
+      "dmx_node":         ["elc dmx", "dmx node", "dmx node 8"],
+      "dmx_splitter":     ["showtec", "rdm dmx splitter", "dmx splitter", "dmx booster"],
+      "maverick":         ["maverick", "moving head spot"],
+      "ledrobe":          ["ledbeam", "robe led", "moving head wash", "ledrobe"],
+      "truss_sleeve":     ["truss sleeve"],
+      "lichtpaal":        ["heba", "light pole", "lichtpaal", "k&m paal"],
+      "heavy_base":       ["heavy base", "lichtpaal base"],
+      // Lichtbekabeling
+      "dmx3_cablekit":    ["dmx 3p", "dmx3p", "dmx 3-pin cablekit"],
+      "dmx5_cablekit":    ["dmx 5p cablekit", "dmx5p cablekit"],
+      "powercon_dmx_3m":  ["powercon true + dmx 5p combikabel 3", "powercon dmx 3 m", "combikabel 3 m"],
+      "powercon_dmx_5m":  ["powercon true + dmx 5p combikabel 5", "powercon dmx 5 m", "combikabel 5 m"],
+      "powercon_dmx_10m": ["powercon true + dmx 5p combikabel 10", "powercon dmx 10 m", "combikabel 10 m"],
+      "powercon_dmx_25m": ["powercon true + dmx 5p combikabel 25", "powercon dmx 25 m", "combikabel 25 m"],
+      // Mengtafels & stagebox
+      "dm7":              ["dm7", "yamaha dm7"],
+      "dm3":              ["dm3", "yamaha dm3"],
+      "rio":              ["rio1608", "rio 1608", "stagebox"],
+      // Netwerk
+      "netgear":          ["netgear", "m4300"],
+      "unifi":            ["unifi", "ac mesh", "access point"],
+      "ipad_kit":         ["ipad remote", "ipad kit"],
+      // PA
+      "lacoustics_x8":    ["x8", "l-acoustics x8"],
+      "lacoustics_a10":   ["a10 focus", "l-acoustics a10"],
+      "lacoustics_ks21":  ["ks21", "l-acoustics ks21"],
+      "lacoustics_la4x":  ["la4x", "l-acoustics la4x"],
+      "a10_brackets":     ["a10 bracket"],
+      // Microfoons
+      "ulxd2":            ["ulxd2", "ulxd2 handheld"],
+      "ulxd1":            ["ulxd1", "beltpack"],
+      "ulxd4d":           ["ulxd4d", "dubbele ontvanger"],
+      "microstands":      ["microfoonstatief", "mic stand", "micro stand"],
+      "sm58":             ["sm58", "shure sm58"],
+      "beta58":           ["beta58", "beta 58"],
+      "dpa4099":          ["dpa 4099", "dpa4099"],
+      "dpa_clamps":       ["dpa clamp"],
+      "freq_licentie":    ["frequentielicentie", "freq licentie"],
+      // Audiobekabeling
+      "dante_25m":        ["dante combikabel 25", "dante 25 m"],
+      "dante_50m":        ["dante combikabel 50", "dante 50 m"],
+      "xlr_multi_5m":     ["xlr/dmx/aes multicable 5", "xlr multicable 5", "multicable 5 m"],
+      "xlr_multi_10m":    ["xlr/dmx/aes multicable 10", "xlr multicable 10", "multicable 10 m"],
+      "socapex_breakin":  ["socapex break-in"],
+      "socapex_box":      ["socapex break-in/out", "socapex box"],
+      "socapex_25m":      ["socapex multicable 25", "socapex 25 m"],
+      "combi_cablekit":   ["combi cablekit", "speakon + xlr"],
+      "speakon_sp4":      ["speakon sp4", "sp4 cablekit"],
+      "jack_mono":        ["jackkabel mono", "jack mono", "jack-mono"],
+      // Inhuur
+      "lacoustics_x12":   ["x12", "l-acoustics x12"],
+      "psm1000":          ["psm1000", "psm 1000", "in-ear systeem"],
+      "lacoustics_a15":   ["a15 wide", "l-acoustics a15"],
+      "djm_a9":           ["djm-a9", "djm a9", "pioneer djm"],
+      "cdj3000":          ["cdj-3000", "cdj 3000", "cdj3000"],
+      // Rigging
+      "truss_1m":         ["h30v truss 1", "truss 1 m"],
+      "truss_3m":         ["h30v truss 3", "truss 3 m"],
+      "baseplate_klein":  ["kleine prolyte baseplate", "kleine baseplate"],
+      "tree_bracket":     ["tree/pole bracket", "pole bracket"],
+      "spanband_6m":      ["spanband 6", "spanband 6 m"],
+      "spanband_2m":      ["spanband 2", "spanband 2 m"],
+      "truss_clamps":     ["truss clamp", "fixed angle clamp"],
+      "pinnen":           ["kist met", "pinnen", "clips"],
+      "creative_piping":  ["creative piping"],
+      "baseplate_round":  ["heavy round baseplate", "round baseplate"],
+      // Staging
+      "stagedex_2x1":     ["stagedex 2×1", "stagedex 2x1"],
+      "stagedex_2x05":    ["stagedex 2×0,5", "stagedex 2x0.5", "stagedex 2x05"],
+      "stagedex_1x1":     ["stagedex 1×1", "stagedex 1x1"],
+      "stagedex_1x05":    ["stagedex 1×0,5", "stagedex 1x0.5", "stagedex 1x05"],
+      "pootset_40":       ["pootset 40"],
+      "pootset_20":       ["pootset 20"],
+      "pootset_60":       ["pootset 60"],
+      "verstelbare_poten":["verstelbare poten", "verstelbare poot"],
+      "trap_h40":         ["trap h40", "trap h 40"],
+      "stage_skirt_40":   ["stage skirt 40", "skirt 40"],
+      "stage_skirt_20":   ["stage skirt 20", "skirt 20"],
+      "tapijt":           ["podiumtapijt", "antraciet tapijt", "tapijt"],
+      "deck_clamps":      ["deck-to-deck clamp", "deck to deck"],
+      "rolling_riser":    ["rolling riser"],
+      "regiedesk":        ["regiedesk", "regie desk", "9m regie"],
+      "vloerbescherming": ["vloerbescherming", "tapijttegel"],
+      "zwarte_flanel":    ["zwarte flanel", "flanel"],
+      // Varia
+      "loading_ramp":     ["loading ramp"],
+      "kabelgoten":       ["defender nano", "kabelgoot"],
+      "utp_kit":          ["utp cablekit", "utp kit"],
+      "cat6a_haspel":     ["cat6a haspel", "cat6a"],
+      "ethercon_kit":     ["ethercon cablekit", "ethercon kit"],
+      "schuko_kit":       ["schuko cablekit", "schuko kit"],
+      "cee32_10m":        ["cee 32a 10", "cee32 10 m"],
+      "cee32_25m":        ["cee 32a 25", "cee32 25 m"],
+      "cee32_5m":         ["cee 32a 5 m", "cee32 5 m"],
+      "cee32_2m":         ["cee 32a 2 m", "cee32 2 m"],
+      "schuko_verleng":   ["schuko verleng", "schuko verlengkabel"],
+      "toolcase":         ["productietoolcase", "toolcase medium", "production toolcase"],
+      "ladder_xl":        ["ladder xl"],
+      "ladder_m":         ["ladder medium"],
+      "ballast":          ["ballastset", "zandzak"],
+      "zwanenhals":       ["zwanenhals", "zwanenhals statief"],
+      "wielplaat":        ["wielplaat"],
+    };
+
+    function checkAllItemsInText(docText, allItems) {
       const lower = docText.toLowerCase();
-      return REQUIRED_ITEMS.map((req) => ({
+      return allItems
+        .filter((item) => {
+          const keywords = ITEM_KEYWORDS[item.id];
+          return keywords && keywords.some((kw) => lower.includes(kw.toLowerCase()));
+        })
+        .map((item) => item.name);
+    }
+
+    function checkRequiredInText(docText, allRequired) {
+      const lower = docText.toLowerCase();
+      return allRequired.map((req) => ({
         ...req,
         found: req.matches.some((m) => lower.includes(m.toLowerCase())),
       }));
@@ -204,9 +485,7 @@
       });
     }
 
-    async function analyseDocuments(files, allItems, setStatus) {
-      const itemNames = allItems.map((i) => i.name).join(", ");
-      const contentBlocks = [];
+    async function analyseDocuments(files, allItems, setStatus, allRequired) {
       let combinedText = "";
 
       for (const file of files) {
@@ -224,27 +503,11 @@
           text = await readFileAsText(file);
         }
         combinedText += text + "\n\n";
-        contentBlocks.push({ type: "text", text: `[${file.name}]\n\n${text}` });
       }
 
-      setStatus("🤖 AI analyseert de documenten...");
-      contentBlocks.push({
-        type: "text",
-        text: `Analyseer documenten (werkbon/magazijnbon). Kits: CAKIT SCHUKO bevat schuko's+stekkerdozen, Toolcase bevat gaffa+tape, Videokit bevat HDMI+SDI+USB-C. Aliassen: "Cable Jack-MONO"=Jack kabels, "Frontlicht"=PAR cans. Geef items uit: ${itemNames}. JSON-array alleen.`,
-      });
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role: "user", content: contentBlocks }] }),
-      });
-      const data = await response.json();
-      if (data.error) throw new Error(data.error.message);
-      const raw = data.content?.map((b) => b.text || "").join("") || "[]";
-      let found = [];
-      try { found = JSON.parse(raw.replace(/```json|```/g, "").trim()); } catch {}
-
-      const requiredResults = checkRequiredInText(combinedText);
+      setStatus("🔍 Items herkennen...");
+      const found = checkAllItemsInText(combinedText, allItems);
+      const requiredResults = checkRequiredInText(combinedText, allRequired || REQUIRED_ITEMS);
       const conditionalItems = checkConditionalItems(combinedText);
       return { found, requiredResults, conditionalItems, rawText: combinedText };
     }
@@ -252,7 +515,12 @@
     function App() {
       const [theme, setTheme] = useState("light");
       const [tab, setTab] = useState("checklist");
-      const [categories, setCategories] = useState(DEFAULT_CATEGORIES);
+      const [categories, setCategories] = useState(() => {
+        try { const s = localStorage.getItem("eq_categories"); return s ? JSON.parse(s) : DEFAULT_CATEGORIES; } catch { return DEFAULT_CATEGORIES; }
+      });
+      const [allRequired, setAllRequired] = useState(() => {
+        try { const s = localStorage.getItem("eq_required_items"); return s ? JSON.parse(s) : REQUIRED_ITEMS; } catch { return REQUIRED_ITEMS; }
+      });
       const [checked, setChecked] = useState({});
       const [newItemName, setNewItemName] = useState("");
       const [addingTo, setAddingTo] = useState(null);
@@ -264,6 +532,43 @@
       const [requiredResults, setRequiredResults] = useState(null);
       const [conditionalItems, setConditionalItems] = useState(null);
       const [analyseError, setAnalyseError] = useState("");
+      const [editingReq, setEditingReq] = useState(undefined);
+      const [reqFormName, setReqFormName] = useState("");
+      const [reqFormDesc, setReqFormDesc] = useState("");
+      const [reqFormKeywords, setReqFormKeywords] = useState("");
+
+      useEffect(() => { localStorage.setItem("eq_categories", JSON.stringify(categories)); }, [categories]);
+      useEffect(() => { localStorage.setItem("eq_required_items", JSON.stringify(allRequired)); }, [allRequired]);
+
+      const openAddRequired = () => { setEditingReq(null); setReqFormName(""); setReqFormDesc(""); setReqFormKeywords(""); };
+      const openEditRequired = (req) => { setEditingReq(req.id); setReqFormName(req.name); setReqFormDesc(req.description || ""); setReqFormKeywords(req.matches.join(", ")); };
+      const closeReqForm = () => { setEditingReq(undefined); setReqFormName(""); setReqFormDesc(""); setReqFormKeywords(""); };
+      const saveRequired = () => {
+        const name = reqFormName.trim(); if (!name) return;
+        const keywords = reqFormKeywords.split(",").map(k => k.trim()).filter(Boolean);
+        const matches = keywords.length ? keywords : [name.toLowerCase()];
+        if (editingReq) {
+          setAllRequired(p => p.map(r => r.id === editingReq ? { ...r, name, description: reqFormDesc.trim(), matches } : r));
+        } else {
+          setAllRequired(p => [...p, { id: `cr_${Date.now()}`, name, description: reqFormDesc.trim(), matches, checklist_items: [], custom: true }]);
+        }
+        closeReqForm();
+      };
+      const deleteRequired = (id) => setAllRequired(p => p.filter(r => r.id !== id));
+      const showReqForm = editingReq !== undefined;
+      const [rawText, setRawText] = useState("");
+
+      const reset = () => {
+        setChecked({});
+        setWerkbon(null);
+        setMagazijnbon(null);
+        setFoundItems(null);
+        setRequiredResults(null);
+        setConditionalItems(null);
+        setAnalyseError("");
+        setAnalyseStatus("");
+        setTab("upload");
+      };
 
       const C = THEMES[theme];
       const allItems = categories.flatMap((c) => c.items);
@@ -283,8 +588,8 @@
         if (!files.length) { setAnalyseError("Upload minstens één document."); return; }
         setAnalyseError(""); setAnalysing(true); setFoundItems(null); setRequiredResults(null); setConditionalItems(null); setAnalyseStatus("");
         try {
-          const { found, requiredResults: rr, conditionalItems: ci } = await analyseDocuments(files, allItems, setAnalyseStatus);
-          setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci);
+          const { found, requiredResults: rr, conditionalItems: ci, rawText: rt } = await analyseDocuments(files, allItems, setAnalyseStatus, allRequired);
+          setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci); setRawText(rt);
           
           const newChecked = { ...checked };
           found.forEach((itemName) => {
@@ -304,6 +609,18 @@
           setAnalyseStatus("");
         } catch (e) { setAnalyseError(e.message); setAnalyseStatus(""); }
         finally { setAnalysing(false); }
+      };
+
+      const heranalyseer = () => {
+        if (!rawText) return;
+        const found = checkAllItemsInText(rawText, allItems);
+        const rr = checkRequiredInText(rawText, allRequired);
+        const ci = checkConditionalItems(rawText);
+        setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci);
+        const newChecked = { ...checked };
+        found.forEach((itemName) => { const id = FOUND_TO_CHECKLIST[itemName]; if (id) newChecked[id] = true; });
+        rr.forEach((req) => { if (req.found) req.checklist_items.forEach((itemName) => { const id = FOUND_TO_CHECKLIST[itemName]; if (id) newChecked[id] = true; }); });
+        setChecked(newChecked);
       };
 
       const missingItems = foundItems ? allItems.filter((i) => !foundItems.includes(i.name) && !checked[i.id]) : [];
@@ -347,9 +664,12 @@
         <div style={css.app}>
           <div style={css.header}>
             <div style={css.logo}><div style={css.logoDot} /> Equipment Tracker</div>
-            <div style={css.pillGroup}>
-              <button style={css.pillBtn(theme==="light")} onClick={() => setTheme("light")}>☀️ Dag</button>
-              <button style={css.pillBtn(theme==="dark")} onClick={() => setTheme("dark")}>🌙 Nacht</button>
+            <div style={{display:"flex",gap:8,alignItems:"center"}}>
+              {foundItems && <button style={{...css.btn(false), fontSize:12, padding:"5px 14px", border:`1px solid ${C.border}`, color:C.textMid}} onClick={reset}>↺ Nieuwe analyse</button>}
+              <div style={css.pillGroup}>
+                <button style={css.pillBtn(theme==="light")} onClick={() => setTheme("light")}>☀️ Dag</button>
+                <button style={css.pillBtn(theme==="dark")} onClick={() => setTheme("dark")}>🌙 Nacht</button>
+              </div>
             </div>
           </div>
 
@@ -363,15 +683,19 @@
           <div style={css.main}>
             {tab === "checklist" && (
               <>
-                <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
                   <span style={css.stat("success")}>{checkedCount} afgevinkt</span>
                   <span style={css.stat("neutral")}>{allItems.length-checkedCount} resterend</span>
                   {foundItems && <span style={css.stat("primary")}>{foundItems.length} in documenten</span>}
+                  {rawText && <button style={{...css.btn(false), fontSize:12, padding:"4px 12px", marginLeft:"auto"}} onClick={heranalyseer}>🔄 Heranalyseer</button>}
                 </div>
 
                 <div style={{ ...css.card, border: `1.5px solid ${C.danger}55` }}>
-                  <h2 style={css.cardTitle}>🚨 Verplichte items</h2>
-                  {REQUIRED_ITEMS.map((req) => {
+                  <div style={{...css.cardHeader}}>
+                    <h2 style={{...css.cardTitle}}>🚨 Verplichte items</h2>
+                    <button style={{...css.btn(true), fontSize:11, padding:"4px 10px"}} onClick={openAddRequired}>+ Toevoegen</button>
+                  </div>
+                  {allRequired.map((req) => {
                     const result = requiredResults?.find((r) => r.id === req.id);
                     const isFound = result?.found;
                     return (
@@ -385,10 +709,37 @@
                         </div>
                         {isFound && <span style={css.stat("success")}>gevonden ✓</span>}
                         {requiredResults && !isFound && <span style={css.stat("danger")}>ONTBREEKT</span>}
+                        <button onClick={() => openEditRequired(req)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:13,marginLeft:4,padding:"2px 4px"}} title="Bewerken">✏️</button>
+                        <button onClick={() => deleteRequired(req.id)} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:16,padding:"2px 4px"}} title="Verwijderen">×</button>
                       </div>
                     );
                   })}
                 </div>
+
+                {showReqForm && (
+                  <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.5)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={closeReqForm}>
+                    <div style={{background:C.panel,borderRadius:16,padding:24,width:400,boxShadow:"0 8px 32px rgba(0,0,0,0.2)"}} onClick={e => e.stopPropagation()}>
+                      <h3 style={{margin:"0 0 16px",color:C.text,fontSize:15}}>{editingReq ? "Verplicht item bewerken" : "Verplicht item toevoegen"}</h3>
+                      <div style={{marginBottom:10}}>
+                        <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Naam *</div>
+                        <input style={css.input} placeholder="bv. Hazer" value={reqFormName} onChange={e => setReqFormName(e.target.value)} autoFocus />
+                      </div>
+                      <div style={{marginBottom:10}}>
+                        <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Omschrijving</div>
+                        <input style={css.input} placeholder="bv. Rookmachine voor sfeer" value={reqFormDesc} onChange={e => setReqFormDesc(e.target.value)} />
+                      </div>
+                      <div style={{marginBottom:16}}>
+                        <div style={{fontSize:11,color:C.muted,marginBottom:4}}>Zoekwoorden (komma-gescheiden)</div>
+                        <input style={css.input} placeholder="bv. hazer, rookmachine, haze" value={reqFormKeywords} onChange={e => setReqFormKeywords(e.target.value)} onKeyDown={e => e.key === "Enter" && saveRequired()} />
+                        <div style={{fontSize:10,color:C.muted,marginTop:4}}>Leeg laten = naam als zoekwoord</div>
+                      </div>
+                      <div style={{display:"flex",gap:8,justifyContent:"flex-end"}}>
+                        <button style={css.btn(false)} onClick={closeReqForm}>Annuleer</button>
+                        <button style={css.btn(true)} onClick={saveRequired}>Opslaan</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {categories.map((cat) => (
                   <div key={cat.id} style={css.card}>
@@ -447,6 +798,18 @@
                           <div key={req.id} style={css.row}>
                             <span style={{color:C.danger,fontSize:18}}>✗</span>
                             <span style={{flex:1, color:C.text}}>{req.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {missingItems.length > 0 && (
+                      <div style={{...css.card, border:`1.5px solid ${C.border}`}}>
+                        <h2 style={css.cardTitle}>📋 Niet gevonden in documenten</h2>
+                        {missingItems.map((item) => (
+                          <div key={item.id} style={css.row}>
+                            <span style={{color:C.muted,fontSize:16}}>–</span>
+                            <span style={{flex:1, color:C.text}}>{item.name}</span>
                           </div>
                         ))}
                       </div>
