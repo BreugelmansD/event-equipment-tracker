@@ -431,6 +431,198 @@
       }));
     }
 
+    const ASPECTS = [
+      {
+        id: "main_pa",
+        name: "Main PA",
+        icon: "🔊",
+        description: "Hoofdgeluidssysteem aanwezig",
+        triggers: ["x8", "x12", "a10", "a15", "kiva", "kara", "syva", "line array", "main pa", "tops", "luidspreker", "speaker", "soundsystem"],
+        requires: [
+          { name: "Versterker (LA4X / LA12X / …)", keywords: ["la4x", "la12x", "la8", "la4", "versterker", "amplifier", "ampli"], critical: true },
+          { name: "Speakon / COMBI cablekit", keywords: ["speakon", "combi cablekit"], critical: true },
+        ],
+      },
+      {
+        id: "subs",
+        name: "Subwoofers",
+        icon: "🔉",
+        description: "Subwoofers aanwezig",
+        triggers: ["ks21", "ks28", "sb18", "sub ", "subwoofer", "subbass"],
+        requires: [
+          { name: "Versterker", keywords: ["la4x", "la12x", "la8", "la4", "versterker", "amplifier"], critical: true },
+          { name: "Speakon kabel", keywords: ["speakon", "combi cablekit"], critical: true },
+        ],
+      },
+      {
+        id: "delay",
+        name: "Delay / Fill speakers",
+        icon: "📢",
+        description: "Delay of fill luidsprekers aanwezig",
+        triggers: ["delay", "fill", "front fill", "under balcony", "out fill", "side fill"],
+        requires: [
+          { name: "Extra versterker", keywords: ["la4x", "la12x", "versterker"], critical: true },
+          { name: "Dante combikabel of UTP", keywords: ["dante", "utp", "ethercon", "cat6"], critical: false },
+        ],
+      },
+      {
+        id: "vliegwerk",
+        name: "Vliegwerk / Rigging",
+        icon: "🏗️",
+        description: "Gevlogen systemen of trussing aanwezig",
+        triggers: ["gevlogen", "vliegframe", "vliegpunt", "fly bar", "flybar", "truss", "motor", "chain hoist", "takel", "bridle", "prolyte", "line array"],
+        requires: [
+          { name: "Richtkoord", keywords: ["richtkoord", "guide wire"], critical: true },
+          { name: "Veiligheidskabel / sling", keywords: ["veiligheidskabel", "sling", "strop", "safety"], critical: true },
+          { name: "Shackles / spanschroeven", keywords: ["shackle", "spanschroef", "schakel"], critical: false },
+          { name: "Klimpak / harnas", keywords: ["klimpak", "harnas"], critical: false },
+          { name: "Helm", keywords: ["helm"], critical: false },
+        ],
+      },
+      {
+        id: "staging",
+        name: "Podium / Staging",
+        icon: "🎪",
+        description: "Podiumelementen aanwezig",
+        triggers: ["stagedex", "podium", "stage", "poot", "deck", "podiumtapijt", "skirt", "staging"],
+        requires: [
+          { name: "Trap", keywords: ["trap h", "stairs"], critical: true },
+          { name: "Stage skirts", keywords: ["skirt"], critical: false },
+          { name: "Podiumtapijt", keywords: ["tapijt", "carpet"], critical: false },
+          { name: "Deck-to-deck clamps", keywords: ["deck-to-deck", "deck clamp"], critical: false },
+        ],
+      },
+      {
+        id: "mengpaneel",
+        name: "Mengpaneel / FOH",
+        icon: "🎛️",
+        description: "Mengpaneel aanwezig",
+        triggers: ["dm7", "dm3", "cl5", "cl3", "cl1", "m32", "sq7", "sq6", "sq5", "wing", "sd9", "sd11", "pm5d", "pm7d", "mengpaneel", "mixer", "foh"],
+        requires: [
+          { name: "Stagebox / I/O rack", keywords: ["rio", "stagebox", "stage box", "i/o rack", "dx168", "di rack"], critical: true },
+          { name: "Dante / AES netwerk", keywords: ["dante", "aes", "madi"], critical: false },
+          { name: "Regiedesk set", keywords: ["regie desk", "regiedesk"], critical: false },
+        ],
+      },
+      {
+        id: "dante",
+        name: "Dante netwerk",
+        icon: "🌐",
+        description: "Dante audionetwerk aanwezig",
+        triggers: ["dante", "rio", "r series", "tio", "stagebox"],
+        requires: [
+          { name: "Netwerk switch (managed)", keywords: ["netgear", "cisco", "switch", "m4300", "m4250"], critical: true },
+          { name: "UTP / Ethercon cablekit", keywords: ["utp", "ethercon", "cat6"], critical: true },
+          { name: "Dante combikabel", keywords: ["dante combikabel"], critical: false },
+        ],
+      },
+      {
+        id: "draadloos",
+        name: "Draadloos (RF)",
+        icon: "📡",
+        description: "Draadloze systemen aanwezig",
+        triggers: ["ulxd", "qlxd", "slxd", "axd", "uhf", "beltpack", "handheld", "draadloos", "wireless", "bodypack", "lavalier", "dasspeld"],
+        requires: [
+          { name: "Dubbele ontvanger (bijv. ULXD4D)", keywords: ["ulxd4d", "qlxd4d", "slxd4d", "ontvanger"], critical: true },
+          { name: "Frequentielicentie-set", keywords: ["frequentielicentie", "freq licentie", "licentie"], critical: true },
+          { name: "Antenne / distro", keywords: ["antenne", "antenna", "distro"], critical: false },
+        ],
+      },
+      {
+        id: "iem",
+        name: "In-ear monitoring (IEM)",
+        icon: "🎧",
+        description: "In-ear systeem aanwezig",
+        triggers: ["iem", "in-ear", "psm", "sf2", "p10r", "p6hw", "in ear"],
+        requires: [
+          { name: "Bodypack ontvanger", keywords: ["bodypack", "ontvanger", "receiver", "p10r", "p6hw"], critical: true },
+          { name: "Frequentielicentie-set", keywords: ["frequentielicentie", "freq licentie", "licentie"], critical: true },
+          { name: "Oorstukje / kabel", keywords: ["earpiece", "oortje", "oorstukje"], critical: false },
+        ],
+      },
+      {
+        id: "licht",
+        name: "Lichtinstallatie",
+        icon: "💡",
+        description: "Verlichtingsinstallatie aanwezig",
+        triggers: ["moving head", "movinghead", "par can", "parcan", "uplighter", "led bar", "ledbar", "wash", "spot", "beam", "strobe", "lichtinstallatie", "fixture", "chauvet", "robe", "martin", "ayrton"],
+        requires: [
+          { name: "DMX cablekit (3p of 5p)", keywords: ["dmx 3p", "dmx 5p", "dmx cablekit"], critical: true },
+          { name: "Lichttafel / controller", keywords: ["chamsys", "grandma", "mq70", "mq80", "ma2", "ma3", "onyx", "dmx controller", "lichttafel"], critical: true },
+          { name: "PowerCON kabels", keywords: ["powercon", "true1"], critical: false },
+        ],
+      },
+      {
+        id: "dmx_wireless",
+        name: "Wireless DMX",
+        icon: "📶",
+        description: "Draadloze DMX aanwezig",
+        triggers: ["wireless dmx", "wtr-dmx", "lumenradio", "skywire", "w-dmx", "draadloze dmx"],
+        requires: [
+          { name: "Wireless DMX transceiver", keywords: ["wtr-dmx", "lumenradio", "w-dmx", "transceiver"], critical: true },
+        ],
+      },
+      {
+        id: "krachtstroom",
+        name: "Krachtstroom",
+        icon: "⚡",
+        description: "Krachtstroom (CEE) aanwezig",
+        triggers: ["32a", "63a", "125a", "krachtstroom", "cee", "draaistroom", "400v"],
+        requires: [
+          { name: "CEE 32A kabels", keywords: ["cee 32a", "cee32"], critical: true },
+          { name: "Stroom distro / verdeler", keywords: ["distro", "verdeler", "power distro"], critical: false },
+          { name: "Aggregaat (indien geen netstroom)", keywords: ["aggregaat", "generator"], critical: false },
+        ],
+      },
+      {
+        id: "video",
+        name: "Video",
+        icon: "🎬",
+        description: "Videosysteem aanwezig",
+        triggers: ["led wall", "ledwall", "scherm", "projector", "beamer", "screen", "display", "hdmi", "sdi", "scaler", "video"],
+        requires: [
+          { name: "HDMI / SDI kabels", keywords: ["hdmi", "sdi"], critical: true },
+          { name: "Scaler / switcher", keywords: ["scaler", "switcher", "barco", "analog way", "christie"], critical: false },
+          { name: "UTP / Ethercon (voor IP video)", keywords: ["utp", "ethercon", "ndivideo", "ndi"], critical: false },
+        ],
+      },
+      {
+        id: "cacom",
+        name: "CACOM / Intercom",
+        icon: "🎙️",
+        description: "Communicatiesysteem aanwezig",
+        triggers: ["cacom", "intercom", "clearcom", "rts", "com systeem", "talkback"],
+        requires: [
+          { name: "CACOM couplers", keywords: ["cacom coupler", "coupler"], critical: true },
+          { name: "CACOM cablage", keywords: ["cacom kabel", "cacom cablage"], critical: true },
+        ],
+      },
+      {
+        id: "recording",
+        name: "Recording / Broadcast",
+        icon: "⏺️",
+        description: "Opname of broadcast aanwezig",
+        triggers: ["recording", "opname", "broadcast", "livestream", "stream", "rec ", "madi", "dante via"],
+        requires: [
+          { name: "MADI / Dante recording interface", keywords: ["madi", "dante"], critical: false },
+          { name: "SDI / HDMI outputs", keywords: ["sdi", "hdmi"], critical: false },
+        ],
+      },
+    ];
+
+    function checkAspects(docText) {
+      const lower = docText.toLowerCase();
+      return ASPECTS.map(aspect => {
+        const triggered = aspect.triggers.some(t => lower.includes(t.toLowerCase()));
+        if (!triggered) return { ...aspect, triggered: false, deps: [] };
+        const deps = aspect.requires.map(req => ({
+          ...req,
+          found: req.keywords.some(k => lower.includes(k.toLowerCase())),
+        }));
+        return { ...aspect, triggered: true, deps };
+      }).filter(a => a.triggered);
+    }
+
     function checkConditionalItems(docText) {
       const lower = docText.toLowerCase();
       const conditional = [];
@@ -505,7 +697,8 @@
       const found = checkAllItemsInText(combinedText, allItems);
       const requiredResults = checkRequiredInText(combinedText, allRequired || REQUIRED_ITEMS);
       const conditionalItems = checkConditionalItems(combinedText);
-      return { found, requiredResults, conditionalItems, rawText: combinedText };
+      const aspectResults = checkAspects(combinedText);
+      return { found, requiredResults, conditionalItems, aspectResults, rawText: combinedText };
     }
 
     function App() {
@@ -527,6 +720,7 @@
       const [foundItems, setFoundItems] = useState(null);
       const [requiredResults, setRequiredResults] = useState(null);
       const [conditionalItems, setConditionalItems] = useState(null);
+      const [aspectResults, setAspectResults] = useState(null);
       const [analyseError, setAnalyseError] = useState("");
       const [editingReq, setEditingReq] = useState(undefined);
       const [reqFormName, setReqFormName] = useState("");
@@ -591,6 +785,7 @@
         setFoundItems(null);
         setRequiredResults(null);
         setConditionalItems(null);
+        setAspectResults(null);
         setAnalyseError("");
         setAnalyseStatus("");
         setTab("upload");
@@ -612,10 +807,10 @@
       const handleAnalyse = async () => {
         const files = [werkbon, magazijnbon].filter(Boolean);
         if (!files.length) { setAnalyseError("Upload minstens één document."); return; }
-        setAnalyseError(""); setAnalysing(true); setFoundItems(null); setRequiredResults(null); setConditionalItems(null); setAnalyseStatus("");
+        setAnalyseError(""); setAnalysing(true); setFoundItems(null); setRequiredResults(null); setConditionalItems(null); setAspectResults(null); setAnalyseStatus("");
         try {
-          const { found, requiredResults: rr, conditionalItems: ci, rawText: rt } = await analyseDocuments(files, allItems, setAnalyseStatus, allRequired);
-          setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci); setRawText(rt);
+          const { found, requiredResults: rr, conditionalItems: ci, aspectResults: ar, rawText: rt } = await analyseDocuments(files, allItems, setAnalyseStatus, allRequired);
+          setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci); setAspectResults(ar); setRawText(rt);
           
           const newChecked = { ...checked };
           found.forEach((itemName) => {
@@ -631,7 +826,7 @@
             }
           });
           setChecked(newChecked);
-          setTab("missing"); 
+          setTab("aspecten");
           setAnalyseStatus("");
         } catch (e) { setAnalyseError(e.message); setAnalyseStatus(""); }
         finally { setAnalysing(false); }
@@ -642,7 +837,8 @@
         const found = checkAllItemsInText(rawText, allItems);
         const rr = checkRequiredInText(rawText, allRequired);
         const ci = checkConditionalItems(rawText);
-        setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci);
+        const ar = checkAspects(rawText);
+        setFoundItems(found); setRequiredResults(rr); setConditionalItems(ci); setAspectResults(ar);
         const newChecked = { ...checked };
         found.forEach((itemName) => { const id = FOUND_TO_CHECKLIST[itemName]; if (id) newChecked[id] = true; });
         rr.forEach((req) => { if (req.found) req.checklist_items.forEach((itemName) => { const id = FOUND_TO_CHECKLIST[itemName]; if (id) newChecked[id] = true; }); });
@@ -752,12 +948,65 @@
 
           <div style={css.tabBar}>
             <span style={css.tabLabel}>Weergave</span>
+            <button style={css.tabPill(tab==="aspecten")} onClick={() => setTab("aspecten")}>🔍 Aspecten{aspectResults && aspectResults.some(a => a.deps.some(d => !d.found && d.critical)) && <span style={{background:C.danger,color:"#fff",borderRadius:99,fontSize:10,fontWeight:700,width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center"}}>!</span>}</button>
             <button style={css.tabPill(tab==="checklist")} onClick={() => setTab("checklist")}>✅ Checklist</button>
             <button style={css.tabPill(tab==="upload")} onClick={() => setTab("upload")}>📄 Documenten</button>
             <button style={css.tabPill(tab==="missing")} onClick={() => setTab("missing")}>Ontbrekend{foundItems && totalMissing > 0 && <span style={{background:C.danger,color:"#fff",borderRadius:99,fontSize:10,fontWeight:700,width:18,height:18,display:"flex",alignItems:"center",justifyContent:"center"}}>{totalMissing}</span>}</button>
           </div>
 
           <div style={css.main}>
+            {tab === "aspecten" && (
+              <>
+                {!aspectResults ? (
+                  <div style={{...css.card, textAlign:"center", padding:40}}>
+                    <div style={{fontSize:40, marginBottom:12}}>🔍</div>
+                    <p style={{color:C.muted, marginBottom:16}}>Upload documenten om aspecten te analyseren</p>
+                    <button style={css.btn(true)} onClick={() => setTab("upload")}>Upload documenten</button>
+                  </div>
+                ) : (
+                  <>
+                    <div style={{display:"flex", gap:6, marginBottom:16, flexWrap:"wrap", alignItems:"center"}}>
+                      <span style={css.stat("success")}>{aspectResults.length} aspecten herkend</span>
+                      <span style={css.stat("danger")}>{aspectResults.reduce((n,a) => n + a.deps.filter(d => !d.found && d.critical).length, 0)} kritieke gaps</span>
+                      {rawText && <button style={{...css.btn(false), fontSize:12, padding:"4px 12px", marginLeft:"auto"}} onClick={heranalyseer}>🔄 Heranalyseer</button>}
+                    </div>
+                    {aspectResults.map(aspect => {
+                      const criticalMissing = aspect.deps.filter(d => !d.found && d.critical);
+                      const warnMissing = aspect.deps.filter(d => !d.found && !d.critical);
+                      const allOk = criticalMissing.length === 0;
+                      return (
+                        <div key={aspect.id} style={{...css.card, borderLeft:`4px solid ${allOk ? C.success : C.danger}`}}>
+                          <div style={{display:"flex", alignItems:"center", gap:10, marginBottom: aspect.deps.length ? 10 : 0}}>
+                            <span style={{fontSize:22}}>{aspect.icon}</span>
+                            <div style={{flex:1}}>
+                              <div style={{fontWeight:700, fontSize:14, color:C.text}}>{aspect.name}</div>
+                              <div style={{fontSize:11, color:C.muted}}>{aspect.description}</div>
+                            </div>
+                            <span style={{...css.stat(allOk ? "success" : "danger"), fontSize:11}}>
+                              {allOk ? "✓ OK" : `${criticalMissing.length} ontbreekt`}
+                            </span>
+                          </div>
+                          {aspect.deps.length > 0 && (
+                            <div style={{borderTop:`1px solid ${C.borderLight}`, paddingTop:8}}>
+                              {aspect.deps.map((dep, i) => (
+                                <div key={i} style={{display:"flex", alignItems:"center", gap:8, padding:"5px 0"}}>
+                                  <span style={{fontSize:13, color: dep.found ? C.success : dep.critical ? C.danger : C.warning}}>
+                                    {dep.found ? "✓" : dep.critical ? "✗" : "△"}
+                                  </span>
+                                  <span style={{flex:1, fontSize:12, color: dep.found ? C.muted : C.text, textDecoration: dep.found ? "line-through" : "none"}}>{dep.name}</span>
+                                  {!dep.found && <span style={{fontSize:10, fontWeight:600, color: dep.critical ? C.danger : C.warning, background: dep.critical ? C.dangerBg : C.warningBg, padding:"2px 7px", borderRadius:99}}>{dep.critical ? "KRITIEK" : "aanbevolen"}</span>}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                )}
+              </>
+            )}
+
             {tab === "checklist" && (
               <>
                 <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
